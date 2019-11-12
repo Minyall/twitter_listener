@@ -66,5 +66,5 @@ A Requirements.txt is included. However the script should work fine if you have 
 ```angular2
 pip install pandas
 pip install tweepy
-pip install datatset
+pip install dataset
 ```
