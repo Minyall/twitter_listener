@@ -51,7 +51,7 @@ df = load_as_dataframe(dbname='animal_tweets', cols_to_unpack=['retweeted_status
 ```
 
 ### `unstringify_nested_dict`
-Unpack an individual column in an already loaded DataFrame. Returns the original datatframe with the nested fields as their own columns prefixed with the original column name.
+Unpack an individual column in an already loaded DataFrame. Returns the original dataframe with the nested fields as their own columns prefixed with the original column name.
 
 ```angular2
 from functions import unstringify_nested_dict
