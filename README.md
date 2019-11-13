@@ -15,7 +15,9 @@ Main file to collect tweets from the livestream.
 
 ```angular2
 Example
-python live_listener.py --query kittens dogs #animals --dbname animal_tweets --retweets
+
+# You will need to escape hashtags using \ for them to be accepted by the shell command.
+python live_listener.py --query kittens dogs \#animals --dbname animal_tweets --retweets
 ```
 
 ### `db_to_csv.py`
