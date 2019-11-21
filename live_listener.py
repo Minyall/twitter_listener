@@ -2,7 +2,9 @@ import dataset
 import json
 import tweepy
 import argparse
-from credentials import CONSUMER_KEY, CONSUMER_SECRET, ACCESS_SECRET, ACCESS_KEY
+from time import sleep
+from urllib3.exceptions import ReadTimeoutError
+from my_credentials import CONSUMER_KEY, CONSUMER_SECRET, ACCESS_SECRET, ACCESS_KEY
 
 def stringify_nested_dict(data, stringify_types=[list, dict, None]):
 
@@ -24,8 +26,6 @@ def flatten_status(status):
 class MyListener(tweepy.StreamListener):
 
     def on_status(self, status):
-        table = db['tweets']
-
         try:
             if retweets:
                 print(status.text)
@@ -47,6 +47,8 @@ class MyListener(tweepy.StreamListener):
         if status_code == 420:
             print(f'Rate Limited: {status_code}')
             return False
+    def on_timeout(self):
+        raise ReadTimeoutError
 
 
 
@@ -66,6 +68,7 @@ retweets = args['retweets']
 dbname = args['dbname']
 
 db = dataset.connect(f"sqlite:///{dbname}.db")
+table = db['tweets']
 auth = tweepy.OAuthHandler(CONSUMER_KEY,CONSUMER_SECRET)
 auth.set_access_token(ACCESS_KEY,ACCESS_SECRET)
 
@@ -75,8 +78,27 @@ session_data = []
 
 def initiate_query_monitor(query):
     print('Listening for Tweets matching {}'.format(query))
-    stream = tweepy.Stream(auth=api_live.auth, listener=MyListener())
-    stream.filter(track=query, is_async=True)
+    try:
+        stream = tweepy.Stream(auth=api_live.auth, listener=MyListener())
+        stream.filter(track=query, is_async=True)
+    except ReadTimeoutError:
+        print('Connection Lost...')
+        stream.disconnect()
+        sleep(4)
+        print('Restarting...')
+        sleep(1)
+        initiate_query_monitor(query)
+    except KeyboardInterrupt:
+        stream.disconnect()
+        raise
+    except Exception as e:
+        print('Fatal Error', e)
+        initiate_query_monitor(query)
     return
 
-initiate_query_monitor(query)
+try:
+    initiate_query_monitor(query)
+except KeyboardInterrupt:
+    print('Shutdown signal recieved...')
+finally:
+    print('Shutdown complete. Have a nice day!')
