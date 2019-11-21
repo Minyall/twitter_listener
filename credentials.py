@@ -1,4 +1,4 @@
-CREDENTIALS = [
+CREDENTIALS_LIBRARY = [
     {'consumer_key': 'key_here',
      'consumer_secret': 'secret_here',
      'access_key': 'key_here',
