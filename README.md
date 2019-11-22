@@ -10,7 +10,12 @@ Main file to collect tweets from the livestream.
 
 - `--query` Your query used to filter out relevant tweets from the live stream. You can specify multiple queries seperated by a space.
 - `--dbname` The name to use for your collection of tweets. Allows you to specify a different name for each project to keep your data seperate.
-- `--retweets` Use if you would like to collect retweets. Default behaviour is to ignore retweets.
+- `--retweets` Toggle to switch on the collection of retweets. Default behaviour is to ignore retweets.
+- `--verbosity` Sets how often the log will update in seconds. Controls both the logging to disk and the output 
+in the terminal Default: 60
+- `--show_sample` Toggle to switch on the display of tweet text in logs and the terminal display. By default this is switched off.
+- `--sample_n` Sets the number of tweets to display as a sample. Default: 5
+- `--sample_len` Character limit of displayed samples  - truncates text at the character limit. Good for keeping a clean display. Default: 100
 
 
 ```angular2
