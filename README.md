@@ -46,12 +46,12 @@ To unpack these at the point of building your CSV specify the columns in the `--
 
 ## Importable Functions
 
-If you would prefer you can import functions from `functions.py` for extracting data from the database and unpacking.
+If you would prefer you can import functions from `db_to_csv.py` for extracting data from the database and unpacking.
 
 ### `load_as_dataframe`
 Returns a Pandas DataFrame
 ```angular2
-from functions import load_as_dataframe
+from db_to_csv import load_as_dataframe
 
 df = load_as_dataframe(dbname='animal_tweets', cols_to_unpack=['retweeted_status','user'])
 
@@ -61,7 +61,7 @@ df = load_as_dataframe(dbname='animal_tweets', cols_to_unpack=['retweeted_status
 Unpack an individual column in an already loaded DataFrame. Returns the original dataframe with the nested fields as their own columns prefixed with the original column name.
 
 ```angular2
-from functions import unstringify_nested_dict
+from db_to_csv import unstringify_nested_dict
 
 df = unstringify_nested_dict(df, col='retweeted_status')
 
