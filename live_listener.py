@@ -3,7 +3,7 @@ import tweepy
 import argparse
 from time import sleep, time
 from functions import duration_passed, build_logger, flatten_status, RingBuffer
-from my_credentials import CONSUMER_KEY, CONSUMER_SECRET, ACCESS_SECRET, ACCESS_KEY
+from credentials import CONSUMER_KEY, CONSUMER_SECRET, ACCESS_SECRET, ACCESS_KEY
 
 main_logger = build_logger('main_logger','main.log')
 
