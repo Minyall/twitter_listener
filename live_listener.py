@@ -4,7 +4,7 @@ import tweepy
 import argparse
 from time import sleep, time
 from functions import minute_passed
-from my_credentials import CONSUMER_KEY, CONSUMER_SECRET, ACCESS_SECRET, ACCESS_KEY
+from credentials import CONSUMER_KEY, CONSUMER_SECRET, ACCESS_SECRET, ACCESS_KEY
 
 def stringify_nested_dict(data, stringify_types=[list, dict, None]):
 
