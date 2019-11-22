@@ -1,7 +1,7 @@
 import pandas as pd
 import dataset
 import json
-
+from time import time
 def unstringify_nested_dict(df, col):
     if col in df.columns:
         unpacked = df[df[col].notna()][col].apply(lambda x: pd.Series(json.loads(x)))
@@ -20,3 +20,6 @@ def load_as_dataframe(dbname, cols_to_unpack=None):
             df = unstringify_nested_dict(df, col)
 
     return df
+
+def minute_passed(oldepoch):
+    return time() - oldepoch >= 60
