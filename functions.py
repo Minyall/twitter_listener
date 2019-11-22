@@ -1,6 +1,5 @@
 import logging
 from collections import deque
-
 import json
 from time import time
 
@@ -78,3 +77,13 @@ class RingBuffer(deque):
     def get(self):
         """returns a list of size items (newest items)"""
         return list(self)
+
+
+def clean_tweet(tweet_text, truncate_length=100):
+    tweet_text = ' '.join(tweet_text.split())
+    tweet_text.replace('\n', '')
+    tweet_text = tweet_text[:truncate_length]
+    tweet_text = tweet_text.strip()
+    return tweet_text + '...'
+
+

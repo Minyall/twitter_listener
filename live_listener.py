@@ -1,106 +1,9 @@
-import dataset
-import tweepy
 import argparse
-from time import sleep, time
-from functions import duration_passed, build_logger, flatten_status, RingBuffer
-from credentials import CONSUMER_KEY, CONSUMER_SECRET, ACCESS_SECRET, ACCESS_KEY
+from functions import build_logger
+from listener_hub import Core_Listener
+from my_credentials import CONSUMER_KEY, CONSUMER_SECRET, ACCESS_SECRET, ACCESS_KEY
 
-def clean_tweet(tweet_text, truncate_length=100):
-    tweet_text = ' '.join(tweet_text.split())
-    tweet_text.replace('\n', '')
-    tweet_text = tweet_text[:truncate_length]
-    tweet_text = tweet_text.strip()
-    return tweet_text + '...'
 
-def initiate_query_monitor(query):
-    try:
-        stream = tweepy.Stream(auth=api_live.auth, listener=MyListener())
-        stream.filter(track=query, is_async=True)
-
-    except KeyboardInterrupt:
-        stream.disconnect()
-        raise
-    except Exception as e:
-        main_logger.error(f'Fatal Error: {e}')
-        initiate_query_monitor(query)
-    return
-
-class MyListener(tweepy.StreamListener):
-    def _initialise_logging(self):
-        self.ticker = time()
-        self.name = ','.join(query)
-        self.tracker = 0
-        self.logger = build_logger(self.name, f"{self.name}.log")
-        if show_sample:
-            self.sample_tweets = RingBuffer(size=sample_n)
-
-    def _handle_status(self, status):
-        flat_data = flatten_status(status)
-        table.insert(flat_data)
-        if show_sample:
-            self.sample_tweets.append(status.text.strip())
-        self.tracker += 1
-        return
-
-    def display_sample(self):
-        self.logger.info("")
-        self.logger.info(f'[***] Current Query: {query} [***]')
-        self.logger.info(f'[***] Statuses Gathered: {self.tracker} [***]')
-        for i, tweet in enumerate(self.sample_tweets.get(), start=1):
-            self.logger.info(f'Sample {i} of {sample_n} | {clean_tweet(tweet, sample_len)}')
-
-    def on_connect(self):
-        self._initialise_logging()
-        self.logger.info('Succesfully connected to Streaming API - We are Listening.')
-        self.logger.info(f"Your query is: {query} |"
-                         f" Storing in Database {dbname}.db |"
-                         f" Log Updates every {logging_interval} seconds.")
-
-    def on_status(self, status):
-        try:
-            if duration_passed(self.ticker, logging_interval):
-                if show_sample:
-                    self.display_sample()
-                else:
-                    self.logger.info(f'Current Query: {query} | Statuses Gathered: {self.tracker}')
-                self.ticker = time()
-            if retweets:
-                self._handle_status(status)
-            else:
-                if not 'retweeted_status' in status._json and not status._json['text'].startswith('RT'):
-                    self._handle_status(status)
-                else:
-                    pass
-            return True
-        except Exception as e:
-            self.logger.error('*'*200)
-            self.logger.error('ERROR! {}'.format(str(e)))
-            return False
-
-    def on_error(self,status_code):
-        if status_code == 420:
-            self.logger.error(f'Rate Limited: {status_code}')
-            sleep(60)
-            return True
-        elif status_code == 401:
-            self.logger.error(f'Twitter Error 401: Incorrect Credentials')
-            return False
-
-    def on_timeout(self):
-        self.logger.info("Timeout Detected - Attempting to handle...")
-        return True
-
-    def on_exception(self, exception):
-        if exception == KeyboardInterrupt:
-            raise KeyboardInterrupt
-        else:
-            self.logger.error(f'Unhandled Exception {exception}')
-        return False
-
-    def keep_alive(self):
-        if duration_passed(self.ticker, logging_interval):
-            self.logger.info("Connection still live...")
-            self.ticker = time()
 
 
 if __name__ == '__main__':
@@ -123,24 +26,15 @@ if __name__ == '__main__':
 
     try:
         args = vars(parser.parse_args())
+        listener = Core_Listener(args,
+                                 CONSUMER_KEY,
+                                 CONSUMER_SECRET,
+                                 ACCESS_KEY,
+                                 ACCESS_SECRET,
+                                 logger=main_logger)
 
-        query = args['query']
-        retweets = args['retweets']
-        dbname = args['dbname']
-        logging_interval = args['verbosity']
-        show_sample = args['show_sample']
-        sample_n = args['sample_n']
-        sample_len = args['sample_len']
+        listener.initiate_core()
 
-        db = dataset.connect(f"sqlite:///{dbname}.db")
-        table = db['tweets']
-
-        auth = tweepy.OAuthHandler(CONSUMER_KEY,CONSUMER_SECRET)
-        auth.set_access_token(ACCESS_KEY,ACCESS_SECRET)
-
-        api_live = tweepy.API(auth,wait_on_rate_limit=True, wait_on_rate_limit_notify=True)
-
-        initiate_query_monitor(query)
     except KeyboardInterrupt:
         main_logger.info('Shutdown signal recieved...')
         main_logger.info('Shutdown Complete. Have a nice day!')
