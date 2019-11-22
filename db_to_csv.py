@@ -26,7 +26,7 @@ def load_as_dataframe(dbname, cols_to_unpack=None):
     return df
 
 
-if __name__ == 'main':
+if __name__ == '__main__':
     import argparse
 
     parser = argparse.ArgumentParser(description='A general pupose Twitter Monitor')

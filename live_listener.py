@@ -5,8 +5,6 @@ from time import sleep, time
 from functions import duration_passed, build_logger, flatten_status, RingBuffer
 from credentials import CONSUMER_KEY, CONSUMER_SECRET, ACCESS_SECRET, ACCESS_KEY
 
-main_logger = build_logger('main_logger','main.log')
-
 def clean_tweet(tweet_text, truncate_length=100):
     tweet_text = ' '.join(tweet_text.split())
     tweet_text.replace('\n', '')
@@ -105,42 +103,44 @@ class MyListener(tweepy.StreamListener):
             self.ticker = time()
 
 
+if __name__ == '__main__':
 
-parser = argparse.ArgumentParser(description='A general pupose Twitter Monitor')
-parser.add_argument('-db', '--dbname', action='store', type=str, required=True)
-parser.add_argument('-q', '--query', action='store', nargs='+', required=True)
-parser.add_argument('-r', '--retweets', help='Boolean: Collect Retweets - Default False',
-                    action='store_true', default=False)
-parser.add_argument('-v', '--verbosity', action='store', required=False, type=int, default=60,
-                    help='Integer - Duration between logging updates in seconds')
-parser.add_argument('-s', '--show_sample', action='store_true', required=False, default=False, help='Switch: Include argument'
-                    ' to have logging return a sample of status texts')
-parser.add_argument('-sn', '--sample_n', action='store', type=int, default=5, required=False, help=
-                    "If using --show_sample, sets the number of sample items to show.")
-parser.add_argument('-sl', '--sample_len', action='store', type=int, default=100, required=False, help=
-                    "Character limit of displayed samples - good for ensuring a clean fit on the screen. Default 100.")
+    main_logger = build_logger('main_logger','main.log')
+    parser = argparse.ArgumentParser(description='A general pupose Twitter Monitor')
+    parser.add_argument('-db', '--dbname', action='store', type=str, required=True)
+    parser.add_argument('-q', '--query', action='store', nargs='+', required=True)
+    parser.add_argument('-r', '--retweets', help='Boolean: Collect Retweets - Default False',
+                        action='store_true', default=False)
+    parser.add_argument('-v', '--verbosity', action='store', required=False, type=int, default=60,
+                        help='Integer - Duration between logging updates in seconds')
+    parser.add_argument('-s', '--show_sample', action='store_true', required=False, default=False, help='Switch: Include argument'
+                        ' to have logging return a sample of status texts')
+    parser.add_argument('-sn', '--sample_n', action='store', type=int, default=5, required=False, help=
+                        "If using --show_sample, sets the number of sample items to show.")
+    parser.add_argument('-sl', '--sample_len', action='store', type=int, default=100, required=False, help=
+                        "Character limit of displayed samples - good for ensuring a clean fit on the screen. Default 100.")
 
 
-try:
-    args = vars(parser.parse_args())
+    try:
+        args = vars(parser.parse_args())
 
-    query = args['query']
-    retweets = args['retweets']
-    dbname = args['dbname']
-    logging_interval = args['verbosity']
-    show_sample = args['show_sample']
-    sample_n = args['sample_n']
-    sample_len = args['sample_len']
+        query = args['query']
+        retweets = args['retweets']
+        dbname = args['dbname']
+        logging_interval = args['verbosity']
+        show_sample = args['show_sample']
+        sample_n = args['sample_n']
+        sample_len = args['sample_len']
 
-    db = dataset.connect(f"sqlite:///{dbname}.db")
-    table = db['tweets']
+        db = dataset.connect(f"sqlite:///{dbname}.db")
+        table = db['tweets']
 
-    auth = tweepy.OAuthHandler(CONSUMER_KEY,CONSUMER_SECRET)
-    auth.set_access_token(ACCESS_KEY,ACCESS_SECRET)
+        auth = tweepy.OAuthHandler(CONSUMER_KEY,CONSUMER_SECRET)
+        auth.set_access_token(ACCESS_KEY,ACCESS_SECRET)
 
-    api_live = tweepy.API(auth,wait_on_rate_limit=True, wait_on_rate_limit_notify=True)
+        api_live = tweepy.API(auth,wait_on_rate_limit=True, wait_on_rate_limit_notify=True)
 
-    initiate_query_monitor(query)
-except KeyboardInterrupt:
-    main_logger.info('Shutdown signal recieved...')
-    main_logger.info('Shutdown Complete. Have a nice day!')
+        initiate_query_monitor(query)
+    except KeyboardInterrupt:
+        main_logger.info('Shutdown signal recieved...')
+        main_logger.info('Shutdown Complete. Have a nice day!')
