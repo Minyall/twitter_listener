@@ -55,6 +55,14 @@ class MyListener(tweepy.StreamListener):
         self.logger.info(f"Your query is: {query} |"
                          f" Storing in Database {dbname}.db |"
                          f" Log Updates every {logging_interval} seconds.")
+        if historical:
+            self.retrieve_historical()
+
+    def retrieve_historical(self):
+        c = tweepy.Cursor(api_live.search, count=100, q=query).items()
+        for tweet in c:
+            self.on_status(tweet)
+        return True
 
     def on_status(self, status):
         try:
@@ -119,7 +127,7 @@ if __name__ == '__main__':
                         "If using --show_sample, sets the number of sample items to show.")
     parser.add_argument('-sl', '--sample_len', action='store', type=int, default=100, required=False, help=
                         "Character limit of displayed samples - good for ensuring a clean fit on the screen. Default 100.")
-
+    parser.add_argument('-hr', '--historical', action='store_true', required=False, default=False, help='Retrieve tweets from the past 7 days prior to initiating the listener')
 
     try:
         args = vars(parser.parse_args())
@@ -131,6 +139,7 @@ if __name__ == '__main__':
         show_sample = args['show_sample']
         sample_n = args['sample_n']
         sample_len = args['sample_len']
+        historical = args['historical']
 
         db = dataset.connect(f"sqlite:///{dbname}.db")
         table = db['tweets']
