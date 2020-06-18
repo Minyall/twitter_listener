@@ -1,6 +1,5 @@
 import logging
 from collections import deque
-
 import json
 from time import time
 
@@ -69,12 +68,27 @@ class RingBuffer(deque):
         # full, pop the oldest item, left most item
         self.popleft()
 
+    def full_extend(self, item):
+        deque.extend(self, item)
+        self.popleft()
+
     def append(self, item):
         deque.append(self, item)
         # max size reached, append becomes full_append
         if len(self) == self.size:
             self.append = self.full_append
 
+    def extend(self, item):
+        deque.extend(self,item)
+        if len(self) == self.size:
+            self.extend = self.full_extend
+
     def get(self):
         """returns a list of size items (newest items)"""
         return list(self)
+
+
+def most_recent_id(db):
+    db.create_table('tweets')
+    res = list(x for x in db.query('SELECT MAX(tweet_id) FROM tweets'))
+    return res[0]['MAX(tweet_id)']
