@@ -2,6 +2,7 @@ import logging
 from collections import deque
 import json
 from time import time
+from sqlalchemy.exc import OperationalError
 
 
 def if_no_dir_make(path):
@@ -89,6 +90,8 @@ class RingBuffer(deque):
 
 
 def most_recent_id(db):
-    db.create_table('tweets')
-    res = list(x for x in db.query('SELECT MAX(tweet_id) FROM tweets'))
-    return res[0]['MAX(tweet_id)']
+    try:
+        res = list(x for x in db.query('SELECT MAX(tweet_id) FROM tweets'))
+        return res[0]['MAX(tweet_id)']
+    except OperationalError:
+        return None
