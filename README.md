@@ -57,13 +57,13 @@ df = load_as_dataframe(dbname='animal_tweets', cols_to_unpack=['retweeted_status
 
 ```
 
-### `unstringify_nested_dict`
+### `unpack_column`
 Unpack an individual column in an already loaded DataFrame. Returns the original dataframe with the nested fields as their own columns prefixed with the original column name.
 
 ```angular2
-from db_to_csv import unstringify_nested_dict
+from db_to_csv import unpack_column
 
-df = unstringify_nested_dict(df, col='retweeted_status')
+df = unpack_column(df, col='retweeted_status')
 
 ```
 

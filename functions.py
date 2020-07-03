@@ -2,6 +2,9 @@ import logging
 from collections import deque
 import json
 from time import time
+
+import dataset
+import pandas as pd
 from sqlalchemy.exc import OperationalError
 
 
@@ -95,3 +98,51 @@ def most_recent_id(db):
         return res[0]['MAX(tweet_id)']
     except OperationalError:
         return None
+
+
+def unpack_column(df, col, isolate=False, drop_prefix=False):
+    if col in df.columns:
+        unpacked = df[df[col].notna()][col].apply(lambda x: pd.Series(json.loads(x)))
+        unpacked = unpacked.add_prefix(col + '.')
+        df.drop(columns=[col], inplace=True)
+        df = df.merge(unpacked, left_index=True, right_index=True, how='left')
+        if isolate:
+            isolate_cols = [c for c in df.columns if c.startswith(col)]
+            df = df[isolate_cols].copy()
+            if drop_prefix:
+                remap = {c:c.split('.')[1] for c in isolate_cols}
+                df.rename(columns=remap, inplace=True)
+    return df
+
+
+def load_as_dataframe(dbname, cols_to_unpack=None):
+    if not dbname.endswith('.db'):
+        dbname = dbname+'.db'
+    db = dataset.connect(f"sqlite:///{dbname}")
+    result = db['tweets'].all()
+    df = pd.DataFrame(result)
+    if cols_to_unpack != None:
+
+        for col in cols_to_unpack:
+            df = unpack_column(df, col)
+
+    return df
+
+def chunks(l, n):
+    """Yield successive n-sized chunks from l."""
+    for i in range(0, len(l), n):
+        yield l[i:i + n]
+
+if __name__ == '__main__':
+    pass
+
+
+def unwind_retweets(df):
+    rt_cols = [col for col in df.columns if col.startswith('retweeted_status')]
+    retweets = df[rt_cols].copy()
+    col_remaps = {col: col.split('.')[1] for col in retweets.columns}
+    retweets.rename(columns=col_remaps)
+    df = pd.concat([df,retweets], axis=0, sort=False)
+    df = df.drop_duplicates(subset='tweet_id')
+    df.reset_index(inplace=True)
+    return df
