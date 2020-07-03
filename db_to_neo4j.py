@@ -24,7 +24,7 @@ urls_df = df.dropna(subset=['entities.urls'])[entities_filter][['tweet_id', 'ent
 urls_df = urls_df.explode('entities.urls')
 urls_df['url'] = urls_df['entities.urls'].apply(lambda x: x['expanded_url'])
 urls_df['netloc'] = urls_df['url'].apply(lambda x: urlparse(x).netloc)
-urls_df = urls_df[urls_df['netloc'] != 'twitter.com']
+urls_df = urls_df[~urls_df['netloc'].str.contains('twitter.com')]
 urls_df = urls_df.drop(columns=['entities.urls'])
 urls_nodes = urls_df[['netloc']].to_dict(orient='records')
 urls_edges = urls_df.to_dict(orient='records')
