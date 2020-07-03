@@ -197,4 +197,4 @@ dmypy.json
 /.idea/
 /.idea/vcs.xml
 brexit.db.db
-my_credentials.py
+credentials.py
