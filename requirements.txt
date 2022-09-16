@@ -6,7 +6,7 @@ chardet==3.0.4
 cryptography==3.3.2
 dataset==1.1.2
 idna==2.8
-Mako==1.1.0
+Mako==1.2.2
 MarkupSafe==1.1.1
 numpy==1.21.0
 oauthlib==3.0.1
