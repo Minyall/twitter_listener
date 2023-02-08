@@ -3,7 +3,7 @@ blinker==1.4
 certifi==2019.9.11
 cffi==1.13.2
 chardet==3.0.4
-cryptography==3.3.2
+cryptography==39.0.1
 dataset==1.1.2
 idna==2.8
 Mako==1.1.0
